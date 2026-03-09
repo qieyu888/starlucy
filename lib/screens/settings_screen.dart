@@ -3,6 +3,8 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import '../services/storage_service.dart';
 import '../services/star_gems_service.dart';
 import '../services/iap_service.dart';
+import '../services/auth_service.dart';
+import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ValueNotifier<int>? gemsRefreshNotifier;
@@ -17,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final StorageService _storageService = StorageService();
   final StarGemsService _gemsService = StarGemsService();
   final IAPService _iapService = IAPService();
+  final AuthService _authService = AuthService();
   int _totalDays = 0;
   int _starGems = 0;
 
@@ -611,15 +614,207 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showLogoutDialog() {
-    showDialog(context: context, builder: (context) => AlertDialog(backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)), title: const Text('退出登录', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4B5563))), content: const Text('确定要退出当前账户吗？', style: TextStyle(fontSize: 14, color: Color(0xFF64748B))), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消', style: TextStyle(color: Color(0xFF94A3B8)))), TextButton(onPressed: () { Navigator.pop(context); _showComingSoon('退出登录'); }, child: const Text('确定', style: TextStyle(color: Color(0xFFA78BFA))))]));
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text(
+          '退出登录',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF4B5563),
+          ),
+        ),
+        content: const Text(
+          '确定要退出当前账户吗？\n\n退出后需要重新登录才能使用',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF64748B),
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              '取消',
+              style: TextStyle(color: Color(0xFF94A3B8)),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              
+              // 显示加载
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFA78BFA)),
+                  ),
+                ),
+              );
+              
+              // 退出登录
+              await _authService.logout();
+              
+              // 关闭加载
+              if (mounted) Navigator.pop(context);
+              
+              // 跳转到登录页
+              if (mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text(
+              '确定',
+              style: TextStyle(
+                color: Color(0xFFA78BFA),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showDeleteAccountDialog() {
-    showDialog(context: context, builder: (context) => AlertDialog(backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)), title: const Row(children: [Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444)), SizedBox(width: 12), Text('注销账户', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)))]), content: const Text('注销账户后，所有数据将被永久删除且无法恢复。确定要继续吗？', style: TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.5)), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消', style: TextStyle(color: Color(0xFF94A3B8)))), TextButton(onPressed: () { Navigator.pop(context); _showComingSoon('注销账户'); }, child: const Text('确定注销', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold)))]));
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444)),
+            SizedBox(width: 12),
+            Text(
+              '注销账户',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFEF4444),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          '注销账户后，所有数据将被永久删除且无法恢复，包括：\n\n'
+          '• 所有日记记录\n'
+          '• 星钻余额\n'
+          '• 个人设置\n\n'
+          '确定要继续吗？',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF64748B),
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              '取消',
+              style: TextStyle(color: Color(0xFF94A3B8)),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showFinalDeleteConfirmation();
+            },
+            child: const Text(
+              '确定注销',
+              style: TextStyle(
+                color: Color(0xFFEF4444),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _showComingSoon(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$feature 功能即将上线'), backgroundColor: const Color(0xFFA78BFA), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+  void _showFinalDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text(
+          '最后确认',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFEF4444),
+          ),
+        ),
+        content: const Text(
+          '这是最后一次确认\n\n'
+          '注销后数据将无法恢复\n\n'
+          '真的要注销账户吗？',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF64748B),
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              '我再想想',
+              style: TextStyle(color: Color(0xFF94A3B8)),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              
+              // 显示加载
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEF4444)),
+                  ),
+                ),
+              );
+              
+              // 删除所有数据
+              await _authService.deleteAccount();
+              
+              // 关闭加载
+              if (mounted) Navigator.pop(context);
+              
+              // 跳转到登录页
+              if (mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text(
+              '确定注销',
+              style: TextStyle(
+                color: Color(0xFFEF4444),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showFeedback() {
