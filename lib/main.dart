@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'StarNote',
+      title: '心陌',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const SplashScreen(),
@@ -134,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 24),
               const Text(
-                'StarNote',
+                '心陌',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,

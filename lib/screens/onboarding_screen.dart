@@ -17,7 +17,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingPage> _pages = [
     OnboardingPage(
       icon: Icons.auto_stories,
-      title: '记录泡泡时光',
+      title: '记录心陌时光',
       description: '用文字和图片记录生活中的每一个精彩瞬间',
       gradient: const LinearGradient(
         colors: [Color(0xFFA78BFA), Color(0xFFF472B6)],

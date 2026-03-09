@@ -80,9 +80,9 @@ class _LoginScreenState extends State<LoginScreen> {
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  '欢迎使用 StarNote！\n\n'
+                  '欢迎使用心陌！\n\n'
                   '1. 服务说明\n'
-                  'StarNote 是一款个人日记记录应用，帮助您记录生活点滴。\n\n'
+                  '心陌是一款个人日记记录应用，帮助您记录生活点滴。\n\n'
                   '2. 用户责任\n'
                   '• 您对自己的账户安全负责\n'
                   '• 不得使用本应用从事违法活动\n'
@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   '• 导出您的所有数据\n'
                   '• 删除您的账户和所有数据\n\n'
                   '5. 联系我们\n'
-                  '如有任何问题，请联系：support@starnote.app\n\n'
+                  '如有任何问题，请联系：support@xinmo.app\n\n'
                   '最后更新：2024年3月',
                   style: TextStyle(
                     fontSize: 14,
@@ -244,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 const Text(
-                  'StarNote',
+                  '心陌',
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
@@ -354,7 +354,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         alignment: Alignment.center,
                         child: const Text(
-                          '进入 StarNote',
+                          '进入心陌',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
